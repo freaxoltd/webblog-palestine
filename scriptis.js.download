@@ -1,0 +1,123 @@
+$(document).ready(function () {
+  //Open Donations
+  $(".donate").click(function () {
+    $("body").addClass("modal-window modal-open-form");
+
+    const status = $(this).attr("href");
+
+    // Store status in localStorage
+    localStorage.setItem("status", status);
+
+    let wallet;
+
+    if (status === "#more") {
+      wallet = {
+        bitcoin: {
+          number: "bc1qvkj0egln9cyzlpkusurju5m5ktcxfmxy5nusv0",
+          qr: "/wp-content/themes/blankslate/images/qr/more-btc.png",
+        },
+        eth: {
+          number: "0x58e683fEc3B8aff64ae3483EbE5AF55ECB73c78F",
+          qr: "/wp-content/uploads/2023/10/above-10-for-ETHUSDT-ERC20.jpg",
+        },
+      };
+    } else {
+      wallet = {
+        bitcoin: {
+          number: "bc1qu0hzmp30x46vlrt8psh8ghzr47yrduhfkm43cp",
+          qr: "/wp-content/themes/blankslate/images/qr/less-btc.png",
+        },
+        eth: {
+          number: "0xCCA3BC20eD1A072B635FB4CFE93f55E197C82000",
+          qr: "/wp-content/uploads/2023/10/below-10-for-ETHUSDT-ERC20.jpg",
+        },
+      };
+    }
+
+    $("#bitcoin").find(".modal__wallet-bottom").text(wallet.bitcoin.number);
+    $("#bitcoin").find(".modal__wallet-qr > a").attr("href", wallet.bitcoin.qr);
+    $("#eth").find(".modal__wallet-bottom").text(wallet.eth.number);
+    $("#eth").find(".modal__wallet-qr > a").attr("href", wallet.eth.qr);
+
+    return false;
+  });
+
+  $('a[href="#done"]').click(function () {
+    const status = localStorage.getItem("status");
+
+    if (status === "#more") {
+      $("body").addClass("modal-open-form-more");
+    } else {
+      $(".modal__close").click();
+    }
+
+    return false;
+  });
+
+  //Close Modal
+  $(".modal__close").click(function () {
+    $("body").removeClass(
+      "modal-window modal-open-form modal-show-policy modal-open-form-more modal-open-form-sent"
+    );
+
+    return false;
+  });
+
+  //Open Policy
+  $('a[href="#policy"]').click(function () {
+    $("body").removeClass(
+      "modal-window modal-open-form modal-open-form-more modal-open-form-sent"
+    );
+    $("body").addClass("modal-window modal-show-policy");
+    return false;
+  });
+
+  $(".modal__wallet-copy, .modal__wallet-bottom").click(function () {
+    var textToCopy = $(this)
+      .parents(".modal__wallet")
+      .find(".modal__wallet-bottom")
+      .text()
+      .trim();
+
+    var tempInput = $("<input>");
+    $("body").append(tempInput);
+    tempInput.val(textToCopy).select();
+    document.execCommand("copy");
+    tempInput.remove();
+
+    alert("Copy to clipboard: " + textToCopy);
+  });
+
+  $(document).on("wpcf7mailsent", function (event) {
+    $("body").addClass("modal-open-form-sent");
+  });
+
+  function addClassWithDelay(entries, observer) {
+    let delay = 0;
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const target = entry.target;
+        setTimeout(() => {
+          target.classList.add("visible");
+        }, delay);
+        delay += 250;
+        observer.unobserve(target);
+      }
+    });
+  }
+
+  const slideTopElems = document.querySelectorAll(".st");
+  const observer = new IntersectionObserver(addClassWithDelay, {
+    threshold: 0.35,
+  });
+
+  slideTopElems.forEach((elem) => {
+    observer.observe(elem);
+  });
+
+  //FAQ
+  $(".faq__label").click(function () {
+    $(this).next(".faq__content").slideToggle("fast");
+    $(this).parents(".faq__item").toggleClass("active");
+  });
+});
